@@ -7,7 +7,9 @@ import { BookingStatus } from '@prisma/client';
 export class BookingsResolver {
   constructor(private readonly bookingsService: BookingsService) {}
 
-  @Query(() => [BookingWithRelations])
+  // === QUERIES SIMPLES (IDs seulement) ===
+
+  @Query(() => [Booking])
   bookings(
     @Args('limit', { type: () => Int, nullable: true }) limit = 20,
     @Args('skip', { type: () => Int, nullable: true }) skip = 0,
@@ -15,38 +17,42 @@ export class BookingsResolver {
     return this.bookingsService.findAll({ limit, skip });
   }
 
-  @Query(() => BookingWithRelations, { nullable: true })
+  @Query(() => Booking, { nullable: true })
   booking(@Args('id', { type: () => Int }) id: number) {
     return this.bookingsService.findOne(id);
   }
 
-  @Mutation(() => BookingWithRelations)
-  createBooking(
+  @Query(() => [Booking])
+  bookingsByClient(
     @Args('clientId', { type: () => Int }) clientId: number,
+    @Args('limit', { type: () => Int, nullable: true }) limit = 20,
+    @Args('skip', { type: () => Int, nullable: true }) skip = 0,
+  ) {
+    return this.bookingsService.findByClient(clientId, { limit, skip });
+  }
+
+  @Query(() => [Booking])
+  bookingsByIntervenant(
     @Args('intervenantId', { type: () => Int }) intervenantId: number,
-    @Args('eventId', { type: () => Int, nullable: true }) eventId?: number,
-    @Args('availabilityId', { type: () => Int, nullable: true }) availabilityId?: number,
-    @Args('status', { type: () => BookingStatus, nullable: true }) status?: BookingStatus,
+    @Args('limit', { type: () => Int, nullable: true }) limit = 20,
+    @Args('skip', { type: () => Int, nullable: true }) skip = 0,
   ) {
-    return this.bookingsService.create({
-      clientId,
-      intervenantId,
-      eventId,
-      availabilityId,
-      status,
-    });
+    return this.bookingsService.findByIntervenant(intervenantId, { limit, skip });
   }
 
-  @Mutation(() => BookingWithRelations)
-  updateBookingStatus(
-    @Args('id', { type: () => Int }) id: number,
-    @Args('status', { type: () => BookingStatus }) status: BookingStatus,
+  // === QUERIES AVEC RELATIONS (objets complets) ===
+
+  @Query(() => [BookingWithRelations])
+  bookingsWithRelations(
+    @Args('limit', { type: () => Int, nullable: true }) limit = 20,
+    @Args('skip', { type: () => Int, nullable: true }) skip = 0,
   ) {
-    return this.bookingsService.update(id, status);
+    return this.bookingsService.findAllWithRelations({ limit, skip });
   }
 
-  @Mutation(() => Booking)
-  deleteBooking(@Args('id', { type: () => Int }) id: number) {
-    return this.bookingsService.remove(id);
+  @Query(() => BookingWithRelations, { nullable: true })
+  bookingWithRelations(@Args('id', { type: () => Int }) id: number) {
+    return this.bookingsService.findOneWithRelations(id);
   }
+
 }

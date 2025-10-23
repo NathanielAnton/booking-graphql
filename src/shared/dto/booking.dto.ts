@@ -1,3 +1,4 @@
+// src/bookings/dto/booking.dto.ts
 import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
 import { BookingStatus } from '@prisma/client';
 import { User } from './user.dto';
@@ -8,6 +9,7 @@ registerEnumType(BookingStatus, {
   name: 'BookingStatus',
 });
 
+// Version SIMPLE - seulement les IDs
 @ObjectType()
 export class Booking {
   @Field(() => Int)
@@ -32,8 +34,31 @@ export class Booking {
   createdAt: Date;
 }
 
+// Version AVEC RELATIONS - objets complets
 @ObjectType()
-export class BookingWithRelations extends Booking {
+export class BookingWithRelations {
+  @Field(() => Int)
+  id: number;
+
+  @Field(() => Int)
+  clientId: number;
+
+  @Field(() => Int)
+  intervenantId: number;
+
+  @Field(() => Int, { nullable: true })
+  eventId?: number;
+
+  @Field(() => Int, { nullable: true })
+  availabilityId?: number;
+
+  @Field(() => BookingStatus)
+  status: BookingStatus;
+
+  @Field()
+  createdAt: Date;
+
+  // Relations
   @Field(() => User)
   client: User;
 

@@ -5,8 +5,22 @@ import { BookingStatus } from '@prisma/client';
 @Injectable()
 export class BookingsService {
   constructor(private prisma: PrismaService) {}
-
+  
   async findAll({ limit, skip }: { limit: number; skip: number }) {
+    return this.prisma.booking.findMany({
+      take: limit,
+      skip,
+      // Pas de include = seulement les champs de base
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.booking.findUnique({
+      where: { id },
+    });
+  }
+  
+  async findAllWithRelations({ limit, skip }: { limit: number; skip: number }) {
     return this.prisma.booking.findMany({
       take: limit,
       skip,
@@ -17,6 +31,8 @@ export class BookingsService {
             firstName: true,
             lastName: true,
             email: true,
+            role: true,
+            createdAt: true,
           },
         },
         intervenant: {
@@ -25,15 +41,35 @@ export class BookingsService {
             firstName: true,
             lastName: true,
             email: true,
+            role: true,
+            createdAt: true,
           },
         },
-        event: true,
-        availability: true,
+        event: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            startDate: true,
+            endDate: true,
+            location: true,
+            status: true,
+          },
+        },
+        availability: {
+          select: {
+            id: true,
+            dayOfWeek: true,
+            startTime: true,
+            endTime: true,
+            isAvailable: true,
+          },
+        },
       },
     });
   }
 
-  async findOne(id: number) {
+  async findOneWithRelations(id: number) {
     return this.prisma.booking.findUnique({
       where: { id },
       include: {
@@ -43,6 +79,8 @@ export class BookingsService {
             firstName: true,
             lastName: true,
             email: true,
+            role: true,
+            createdAt: true,
           },
         },
         intervenant: {
@@ -51,82 +89,48 @@ export class BookingsService {
             firstName: true,
             lastName: true,
             email: true,
+            role: true,
+            createdAt: true,
           },
         },
-        event: true,
-        availability: true,
+        event: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            startDate: true,
+            endDate: true,
+            location: true,
+            status: true,
+          },
+        },
+        availability: {
+          select: {
+            id: true,
+            dayOfWeek: true,
+            startTime: true,
+            endTime: true,
+            isAvailable: true,
+          },
+        },
       },
     });
   }
 
-  async create(data: {
-    clientId: number;
-    intervenantId: number;
-    eventId?: number;
-    availabilityId?: number;
-    status?: BookingStatus;
-  }) {
-    return this.prisma.booking.create({
-      data: {
-        clientId: data.clientId,
-        intervenantId: data.intervenantId,
-        eventId: data.eventId,
-        availabilityId: data.availabilityId,
-        status: data.status || BookingStatus.PENDING,
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        intervenant: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        event: true,
-        availability: true,
-      },
+  // Méthodes utilitaires
+  async findByClient(clientId: number, { limit, skip }: { limit: number; skip: number }) {
+    return this.prisma.booking.findMany({
+      where: { clientId },
+      take: limit,
+      skip,
     });
   }
 
-  async update(id: number, status: BookingStatus) {
-    return this.prisma.booking.update({
-      where: { id },
-      data: { status },
-      include: {
-        client: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        intervenant: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        event: true,
-        availability: true,
-      },
-    });
-  }
-
-  async remove(id: number) {
-    return this.prisma.booking.delete({
-      where: { id },
+  async findByIntervenant(intervenantId: number, { limit, skip }: { limit: number; skip: number }) {
+    return this.prisma.booking.findMany({
+      where: { intervenantId },
+      take: limit,
+      skip,
     });
   }
 }
