@@ -1,4 +1,3 @@
-// src/events/events.service.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { EventStatus } from '@prisma/client';
@@ -6,8 +5,6 @@ import { EventStatus } from '@prisma/client';
 @Injectable()
 export class EventsService {
   constructor(private prisma: PrismaService) {}
-
-  // === VERSION SIMPLE (IDs seulement) ===
 
   async findAll({ limit, skip }: { limit: number; skip: number }) {
     return this.prisma.event.findMany({
@@ -30,8 +27,6 @@ export class EventsService {
       skip,
     });
   }
-
-  // === VERSION AVEC RELATIONS (objets complets) ===
 
   async findAllWithRelations({ limit, skip }: { limit: number; skip: number }) {
     return this.prisma.event.findMany({

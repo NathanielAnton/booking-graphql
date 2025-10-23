@@ -1,4 +1,3 @@
-// src/events/events.resolver.ts
 import { Resolver, Query, Args, Int } from '@nestjs/graphql';
 import { EventsService } from './events.service';
 import { Event, EventWithRelations } from '../shared/dto/event.dto';
@@ -6,8 +5,6 @@ import { Event, EventWithRelations } from '../shared/dto/event.dto';
 @Resolver(() => Event)
 export class EventsResolver {
   constructor(private readonly eventsService: EventsService) {}
-
-  // === QUERIES SIMPLES (IDs seulement) ===
 
   @Query(() => [Event])
   events(
@@ -38,8 +35,6 @@ export class EventsResolver {
   ) {
     return this.eventsService.findUpcoming({ limit, skip });
   }
-
-  // === QUERIES AVEC RELATIONS (objets complets) ===
 
   @Query(() => [EventWithRelations])
   eventsWithRelations(
