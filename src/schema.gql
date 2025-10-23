@@ -1,0 +1,90 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Availability {
+  dayOfWeek: Int!
+  endTime: String!
+  id: Int!
+  isAvailable: Boolean!
+  startTime: String!
+}
+
+type Booking {
+  availabilityId: Int
+  clientId: Int!
+  createdAt: DateTime!
+  eventId: Int
+  id: Int!
+  intervenantId: Int!
+  status: BookingStatus!
+}
+
+enum BookingStatus {
+  CANCELLED
+  CONFIRMED
+  PENDING
+}
+
+type BookingWithRelations {
+  availability: Availability
+  availabilityId: Int
+  client: User!
+  clientId: Int!
+  createdAt: DateTime!
+  event: Event
+  eventId: Int
+  id: Int!
+  intervenant: User!
+  intervenantId: Int!
+  status: BookingStatus!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Event {
+  description: String
+  endDate: DateTime!
+  id: Int!
+  location: String
+  startDate: DateTime!
+  status: EventStatus!
+  title: String!
+}
+
+enum EventStatus {
+  CANCELLED
+  DONE
+  PLANNED
+}
+
+type Mutation {
+  createBooking(availabilityId: Int, clientId: Int!, eventId: Int, intervenantId: Int!, status: BookingStatus): BookingWithRelations!
+  deleteBooking(id: Int!): Booking!
+  updateBookingStatus(id: Int!, status: BookingStatus!): BookingWithRelations!
+}
+
+type Query {
+  booking(id: Int!): BookingWithRelations
+  bookings(limit: Int, skip: Int): [BookingWithRelations!]!
+  user(id: Int!): User
+  users(limit: Int, skip: Int): [User!]!
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+  INTERVENANT
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: Int!
+  lastName: String!
+  role: Role!
+}
