@@ -6,6 +6,18 @@ type Availability {
   dayOfWeek: Int!
   endTime: String!
   id: Int!
+  intervenantId: Int!
+  isAvailable: Boolean!
+  startTime: String!
+}
+
+type AvailabilityWithRelations {
+  bookings: [Booking!]!
+  dayOfWeek: Int!
+  endTime: String!
+  id: Int!
+  intervenant: User!
+  intervenantId: Int!
   isAvailable: Boolean!
   startTime: String!
 }
@@ -49,6 +61,7 @@ type Event {
   description: String
   endDate: DateTime!
   id: Int!
+  intervenantId: Int!
   location: String
   startDate: DateTime!
   status: EventStatus!
@@ -61,15 +74,66 @@ enum EventStatus {
   PLANNED
 }
 
-type Mutation {
-  createBooking(availabilityId: Int, clientId: Int!, eventId: Int, intervenantId: Int!, status: BookingStatus): BookingWithRelations!
-  deleteBooking(id: Int!): Booking!
-  updateBookingStatus(id: Int!, status: BookingStatus!): BookingWithRelations!
+type EventWithRelations {
+  description: String
+  endDate: DateTime!
+  id: Int!
+  intervenant: User!
+  intervenantId: Int!
+  location: String
+  participants: [Booking!]!
+  startDate: DateTime!
+  status: EventStatus!
+  title: String!
 }
 
 type Query {
-  booking(id: Int!): BookingWithRelations
-  bookings(limit: Int, skip: Int): [BookingWithRelations!]!
+  availabilities(limit: Int, skip: Int): [Availability!]!
+  availabilitiesByDay(dayOfWeek: Int!, limit: Int, skip: Int): [Availability!]!
+  availabilitiesByDayWithRelations(dayOfWeek: Int!, limit: Int, skip: Int): [AvailabilityWithRelations!]!
+  availabilitiesByIntervenant(intervenantId: Int!, limit: Int, skip: Int): [Availability!]!
+  availabilitiesByIntervenantAndDay(dayOfWeek: Int!, intervenantId: Int!): [Availability!]!
+  availabilitiesByIntervenantAndDayWithRelations(dayOfWeek: Int!, intervenantId: Int!): [AvailabilityWithRelations!]!
+  availabilitiesByIntervenantWithRelations(intervenantId: Int!, limit: Int, skip: Int): [AvailabilityWithRelations!]!
+  availabilitiesWithRelations(limit: Int, skip: Int): [AvailabilityWithRelations!]!
+  availability(id: Int!): Availability
+  availabilityWithRelations(id: Int!): AvailabilityWithRelations
+  availableSlots(limit: Int, skip: Int): [Availability!]!
+  availableSlotsWithRelations(limit: Int, skip: Int): [AvailabilityWithRelations!]!
+  booking(id: Int!): Booking
+  bookingWithRelations(id: Int!): BookingWithRelations
+  bookings(limit: Int, skip: Int): [Booking!]!
+  bookingsByClient(clientId: Int!, limit: Int, skip: Int): [Booking!]!
+  bookingsByIntervenant(intervenantId: Int!, limit: Int, skip: Int): [Booking!]!
+  bookingsWithRelations(limit: Int, skip: Int): [BookingWithRelations!]!
+  event(id: Int!): Event
+  eventWithRelations(id: Int!): EventWithRelations
+  events(limit: Int, skip: Int): [Event!]!
+  eventsByIntervenant(intervenantId: Int!, limit: Int, skip: Int): [Event!]!
+  eventsByIntervenantWithRelations(intervenantId: Int!, limit: Int, skip: Int): [EventWithRelations!]!
+  eventsWithRelations(limit: Int, skip: Int): [EventWithRelations!]!
+  searchServices(limit: Int, name: String!, skip: Int): [Service!]!
+  searchServicesWithRelations(limit: Int, name: String!, skip: Int): [ServiceWithRelations!]!
+  service(id: Int!): Service
+  serviceOffering(id: Int!): ServiceOffering
+  serviceOfferingByServiceAndIntervenant(intervenantId: Int!, serviceId: Int!): ServiceOffering
+  serviceOfferingByServiceAndIntervenantWithRelations(intervenantId: Int!, serviceId: Int!): ServiceOfferingWithRelations
+  serviceOfferingWithRelations(id: Int!): ServiceOfferingWithRelations
+  serviceOfferings(limit: Int, skip: Int): [ServiceOffering!]!
+  serviceOfferingsByIntervenant(intervenantId: Int!, limit: Int, skip: Int): [ServiceOffering!]!
+  serviceOfferingsByIntervenantWithRelations(intervenantId: Int!, limit: Int, skip: Int): [ServiceOfferingWithRelations!]!
+  serviceOfferingsByService(limit: Int, serviceId: Int!, skip: Int): [ServiceOffering!]!
+  serviceOfferingsByServiceWithRelations(limit: Int, serviceId: Int!, skip: Int): [ServiceOfferingWithRelations!]!
+  serviceOfferingsWithRelations(limit: Int, skip: Int): [ServiceOfferingWithRelations!]!
+  serviceWithRelations(id: Int!): ServiceWithRelations
+  services(limit: Int, skip: Int): [Service!]!
+  servicesByCategory(category: String!, limit: Int, skip: Int): [Service!]!
+  servicesByCategoryWithRelations(category: String!, limit: Int, skip: Int): [ServiceWithRelations!]!
+  servicesByPriceRange(limit: Int, maxPrice: Float!, minPrice: Float!, skip: Int): [Service!]!
+  servicesByPriceRangeWithRelations(limit: Int, maxPrice: Float!, minPrice: Float!, skip: Int): [ServiceWithRelations!]!
+  servicesWithRelations(limit: Int, skip: Int): [ServiceWithRelations!]!
+  upcomingEvents(limit: Int, skip: Int): [Event!]!
+  upcomingEventsWithRelations(limit: Int, skip: Int): [EventWithRelations!]!
   user(id: Int!): User
   users(limit: Int, skip: Int): [User!]!
 }
@@ -78,6 +142,37 @@ enum Role {
   ADMIN
   CLIENT
   INTERVENANT
+}
+
+type Service {
+  category: String
+  duration: Int!
+  id: Int!
+  name: String!
+  price: Float!
+}
+
+type ServiceOffering {
+  id: Int!
+  intervenantId: Int!
+  serviceId: Int!
+}
+
+type ServiceOfferingWithRelations {
+  id: Int!
+  intervenant: User!
+  intervenantId: Int!
+  service: Service!
+  serviceId: Int!
+}
+
+type ServiceWithRelations {
+  category: String
+  duration: Int!
+  id: Int!
+  name: String!
+  offerings: [ServiceOfferingWithRelations!]!
+  price: Float!
 }
 
 type User {
