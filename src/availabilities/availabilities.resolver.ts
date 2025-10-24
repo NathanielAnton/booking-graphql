@@ -1,10 +1,18 @@
-import { Resolver, Query, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Args, Int, Parent, ResolveField } from '@nestjs/graphql';
 import { AvailabilitiesService } from './availabilities.service';
+import { DataLoaderService } from '../database/dataloader.service';
 import { Availability, AvailabilityWithRelations } from '../shared/dto/availability.dto';
+import { User } from '../shared/dto/user.dto';
+import { Booking } from '../shared/dto/booking.dto';
 
 @Resolver(() => Availability)
 export class AvailabilitiesResolver {
-  constructor(private readonly availabilitiesService: AvailabilitiesService) {}
+  constructor(
+    private readonly availabilitiesService: AvailabilitiesService,
+    private readonly dataLoaderService: DataLoaderService,
+  ) {}
+
+  // === QUERIES ===
 
   @Query(() => [Availability])
   availabilities(
@@ -98,5 +106,17 @@ export class AvailabilitiesResolver {
     @Args('dayOfWeek', { type: () => Int }) dayOfWeek: number,
   ) {
     return this.availabilitiesService.findByIntervenantAndDayWithRelations(intervenantId, dayOfWeek);
+  }
+
+  // === RESOLVE FIELDS AVEC DATALOADER ===
+
+  @ResolveField('intervenant', () => User)
+  async getIntervenant(@Parent() availability: Availability) {
+    return this.dataLoaderService.usersLoader.load(availability.intervenantId);
+  }
+
+  @ResolveField('bookings', () => [Booking])
+  async getBookings(@Parent() availability: Availability) {
+    return this.dataLoaderService.bookingsByAvailabilityLoader.load(availability.id);
   }
 }

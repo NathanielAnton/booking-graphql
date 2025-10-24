@@ -1,10 +1,18 @@
-import { Resolver, Query, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Args, Int, Parent, ResolveField } from '@nestjs/graphql';
 import { EventsService } from './events.service';
+import { DataLoaderService } from '../database/dataloader.service';
 import { Event, EventWithRelations } from '../shared/dto/event.dto';
+import { User } from '../shared/dto/user.dto';
+import { Booking } from '../shared/dto/booking.dto';
 
 @Resolver(() => Event)
 export class EventsResolver {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly dataLoaderService: DataLoaderService,
+  ) {}
+
+  // === QUERIES ===
 
   @Query(() => [Event])
   events(
@@ -64,5 +72,17 @@ export class EventsResolver {
     @Args('skip', { type: () => Int, nullable: true }) skip = 0,
   ) {
     return this.eventsService.findUpcomingWithRelations({ limit, skip });
+  }
+
+  // === RESOLVE FIELDS AVEC DATALOADER ===
+
+  @ResolveField('intervenant', () => User)
+  async getIntervenant(@Parent() event: Event) {
+    return this.dataLoaderService.usersLoader.load(event.intervenantId);
+  }
+
+  @ResolveField('bookings', () => [Booking])
+  async getBookings(@Parent() event: Event) {
+    return this.dataLoaderService.bookingsByEventLoader.load(event.id);
   }
 }

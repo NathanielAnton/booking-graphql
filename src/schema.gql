@@ -3,9 +3,11 @@
 # ------------------------------------------------------
 
 type Availability {
+  bookings: [Booking!]!
   dayOfWeek: Int!
   endTime: String!
   id: Int!
+  intervenant: User!
   intervenantId: Int!
   isAvailable: Boolean!
   startTime: String!
@@ -23,11 +25,15 @@ type AvailabilityWithRelations {
 }
 
 type Booking {
+  availability: Availability
   availabilityId: Int
+  client: User!
   clientId: Int!
   createdAt: DateTime!
+  event: Event
   eventId: Int
   id: Int!
+  intervenant: User!
   intervenantId: Int!
   status: BookingStatus!
 }
@@ -58,9 +64,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Event {
+  bookings: [Booking!]!
   description: String
   endDate: DateTime!
   id: Int!
+  intervenant: User!
   intervenantId: Int!
   location: String
   startDate: DateTime!
@@ -176,6 +184,9 @@ type ServiceWithRelations {
 }
 
 type User {
+  availabilities: [Availability!]!
+  bookingsAsClient: [Booking!]!
+  bookingsAsIntervenant: [Booking!]!
   createdAt: DateTime!
   email: String!
   firstName: String!

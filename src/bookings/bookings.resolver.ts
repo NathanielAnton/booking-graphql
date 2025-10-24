@@ -1,11 +1,18 @@
-import { Resolver, Query, Args, Int, Mutation } from '@nestjs/graphql';
+import { Resolver, Query, Args, Int, Parent, ResolveField } from '@nestjs/graphql';
 import { BookingsService } from './bookings.service';
+import { DataLoaderService } from '../database/dataloader.service';
 import { Booking, BookingWithRelations } from '../shared/dto/booking.dto';
-import { BookingStatus } from '@prisma/client';
+import { User } from '../shared/dto/user.dto';
+import { Event } from '../shared/dto/event.dto';
+import { Availability } from '../shared/dto/availability.dto';
+import { Service } from '../shared/dto/service.dto';
 
 @Resolver(() => Booking)
 export class BookingsResolver {
-  constructor(private readonly bookingsService: BookingsService) {}
+  constructor(
+    private readonly bookingsService: BookingsService,
+    private readonly dataLoaderService: DataLoaderService,
+  ) {}
 
   // === QUERIES SIMPLES (IDs seulement) ===
 
@@ -55,4 +62,27 @@ export class BookingsResolver {
     return this.bookingsService.findOneWithRelations(id);
   }
 
+  // === RESOLVE FIELDS AVEC DATALOADER ===
+
+  @ResolveField('client', () => User)
+  async getClient(@Parent() booking: Booking) {
+    return this.dataLoaderService.usersLoader.load(booking.clientId);
+  }
+
+  @ResolveField('intervenant', () => User)
+  async getIntervenant(@Parent() booking: Booking) {
+    return this.dataLoaderService.usersLoader.load(booking.intervenantId);
+  }
+
+  @ResolveField('event', () => Event, { nullable: true })
+  async getEvent(@Parent() booking: Booking) {
+    if (!booking.eventId) return null;
+    return this.dataLoaderService.eventsLoader.load(booking.eventId);
+  }
+
+  @ResolveField('availability', () => Availability, { nullable: true })
+  async getAvailability(@Parent() booking: Booking) {
+    if (!booking.availabilityId) return null;
+    return this.dataLoaderService.availabilitiesLoader.load(booking.availabilityId);
+  }
 }
