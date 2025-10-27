@@ -5,7 +5,7 @@ import { Booking, BookingWithRelations } from '../shared/dto/booking.dto';
 import { User } from '../shared/dto/user.dto';
 import { Event } from '../shared/dto/event.dto';
 import { Availability } from '../shared/dto/availability.dto';
-import { Service } from '../shared/dto/service.dto';
+import { PaginatedBookings, PaginatedBookingsWithRelations } from '../shared/dto/pagination.dto';
 
 @Resolver(() => Booking)
 export class BookingsResolver {
@@ -84,5 +84,21 @@ export class BookingsResolver {
   async getAvailability(@Parent() booking: Booking) {
     if (!booking.availabilityId) return null;
     return this.dataLoaderService.availabilitiesLoader.load(booking.availabilityId);
+  }
+
+  @Query(() => PaginatedBookings)
+  async paginatedBookings(
+    @Args('limit', { type: () => Int, nullable: true }) limit = 20,
+    @Args('skip', { type: () => Int, nullable: true }) skip = 0,
+  ) {
+    return this.bookingsService.paginate({ limit, skip });
+  }
+
+  @Query(() => PaginatedBookingsWithRelations)
+  async paginatedBookingsWithRelations(
+    @Args('limit', { type: () => Int, nullable: true }) limit = 20,
+    @Args('skip', { type: () => Int, nullable: true }) skip = 0,
+  ) {
+    return this.bookingsService.paginateWithRelations({ limit, skip });
   }
 }

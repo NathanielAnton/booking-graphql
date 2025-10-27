@@ -95,6 +95,24 @@ type EventWithRelations {
   title: String!
 }
 
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  limit: Int!
+  skip: Int!
+  totalCount: Int!
+}
+
+type PaginatedBookings {
+  items: [Booking!]!
+  pageInfo: PageInfo!
+}
+
+type PaginatedBookingsWithRelations {
+  items: [BookingWithRelations!]!
+  pageInfo: PageInfo!
+}
+
 type Query {
   availabilities(limit: Int, skip: Int): [Availability!]!
   availabilitiesByDay(dayOfWeek: Int!, limit: Int, skip: Int): [Availability!]!
@@ -120,6 +138,8 @@ type Query {
   eventsByIntervenant(intervenantId: Int!, limit: Int, skip: Int): [Event!]!
   eventsByIntervenantWithRelations(intervenantId: Int!, limit: Int, skip: Int): [EventWithRelations!]!
   eventsWithRelations(limit: Int, skip: Int): [EventWithRelations!]!
+  paginatedBookings(limit: Int, skip: Int): PaginatedBookings!
+  paginatedBookingsWithRelations(limit: Int, skip: Int): PaginatedBookingsWithRelations!
   searchServices(limit: Int, name: String!, skip: Int): [Service!]!
   searchServicesWithRelations(limit: Int, name: String!, skip: Int): [ServiceWithRelations!]!
   service(id: Int!): Service

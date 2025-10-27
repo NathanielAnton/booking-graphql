@@ -133,4 +133,53 @@ export class BookingsService {
       skip,
     });
   }
+
+async paginate({ limit, skip }: { limit: number; skip: number }) {
+  const [items, totalCount] = await Promise.all([
+    this.prisma.booking.findMany({
+      take: limit,
+      skip,
+    }),
+    this.prisma.booking.count(),
+  ]);
+
+  return {
+    items,
+    pageInfo: {
+      totalCount,
+      limit,
+      skip,
+      hasNextPage: skip + limit < totalCount,
+      hasPreviousPage: skip > 0,
+    },
+  };
+}
+
+async paginateWithRelations({ limit, skip }: { limit: number; skip: number }) {
+  const [items, totalCount] = await Promise.all([
+    this.prisma.booking.findMany({
+      take: limit,
+      skip,
+      include: {
+        client: true,
+        intervenant: true,
+        event: true,
+        availability: true,
+      },
+    }),
+    this.prisma.booking.count(),
+  ]);
+
+  return {
+    items,
+    pageInfo: {
+      totalCount,
+      limit,
+      skip,
+      hasNextPage: skip + limit < totalCount,
+      hasPreviousPage: skip > 0,
+    },
+  };
+}
+
 }
